@@ -1,42 +1,23 @@
 import os
 from datetime import datetime
 
-from flask import (
-Flask,
-render_template,
-request,
-redirect,
-url_for
-)
+from flask import Flask, render_template, request, redirect, url_for
 
 from models import db, Snapshot, UnitSnapshot, Activity
 from importer import import_rent_roll
 
 BASE_DIR = os.path.abspath(os.path.dirname(**file**))
 
-UPLOAD_FOLDER = os.path.join(
-BASE_DIR,
-"uploads"
-)
-
-DATABASE_PATH = os.path.join(
-BASE_DIR,
-"database",
-"rent_roll.db"
-)
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
+DATABASE_DIR = os.path.join(BASE_DIR, "database")
+DATABASE_PATH = os.path.join(DATABASE_DIR, "rent_roll.db")
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(
-os.path.join(BASE_DIR, "database"),
-exist_ok=True
-)
+os.makedirs(DATABASE_DIR, exist_ok=True)
 
 app = Flask(**name**)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-f"sqlite:///{DATABASE_PATH}"
-)
-
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_PATH}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
@@ -54,15 +35,13 @@ snapshots = (
     .all()
 )
 
-if len(snapshots) == 0:
+if not snapshots:
     return render_template(
         "dashboard.html",
         snapshot=None
     )
 
-snapshot_date = request.args.get(
-    "snapshot_date"
-)
+snapshot_date = request.args.get("snapshot_date")
 
 if snapshot_date:
     snapshot = Snapshot.query.filter_by(
@@ -76,9 +55,7 @@ else:
 
 units = (
     UnitSnapshot.query
-    .filter_by(
-        snapshot_id=snapshot.id
-    )
+    .filter_by(snapshot_id=snapshot.id)
     .order_by(
         UnitSnapshot.property_name,
         UnitSnapshot.unit_name
@@ -113,17 +90,15 @@ gross_rents = []
 for s in chart_snapshots:
 
     total = sum(
-        u.rent or 0
-        for u in s.units
+        unit.rent or 0
+        for unit in s.units
     )
 
     chart_labels.append(
         s.snapshot_date.strftime("%b %Y")
     )
 
-    gross_rents.append(
-        round(total, 2)
-    )
+    gross_rents.append(total)
 
 return render_template(
     "dashboard.html",
@@ -166,9 +141,7 @@ if request.method == "POST":
         url_for("dashboard")
     )
 
-return render_template(
-    "upload.html"
-)
+return render_template("upload.html")
 ```
 
 if **name** == "**main**":
