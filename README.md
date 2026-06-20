@@ -1,133 +1,118 @@
-# Rent Roll Portal
+### LeTour Fantasy 2026
 
-A lightweight self-hosted dashboard for tracking rental portfolio performance over time.
+A fantasy cycling app for a private league of 3 coaches drafting riders for the
+2026 Tour de France. Hosted on Daniel's Oracle Cloud VM.
 
-Rent Roll Portal is designed to run on a Raspberry Pi and requires minimal maintenance. Each month, upload the latest rent roll export from the property management software and the application automatically updates the dashboard while preserving historical snapshots.
+## Status as of June 19, 2026
 
-## Features
+**Working and deployed on the Oracle VM:**
+- 3 coach accounts created and confirmed logging in successfully:
+  Team Dza, Team Blaster, Team MP
+- Login/logout, Browse Riders, My Team, and drafting all tested working
+- €100 salary cap and 9-rider roster limit enforced server-side
+- Secrets (`SECRET_KEY`) live only in `app/.env` on the VM, never in Git
 
-* Historical rent roll snapshots
-* Monthly CSV upload with snapshot date selection
-* Automatic replacement of duplicate snapshot dates
-* Unit Inventory & Rent Health dashboard
-* Recent Activity feed
-* Historical Financial Trends
-* Property-level rollups
-* Unit-level detail
-* SQLite database (no external database required)
-* Raspberry Pi friendly
+**Fixed in this session (not yet re-verified on the VM after the latest pull):**
+- Added `itsdangerous` to `requirements.txt` — this was missing and caused
+  `ModuleNotFoundError: No module named 'itsdangerous'` on a fresh install,
+  since Starlette's `SessionMiddleware` needs it but pip doesn't always pull
+  it in automatically.
+- Fixed `load_dotenv()` in `app/main.py` and `app/models.py` to point
+  explicitly at `app/.env` instead of relying on python-dotenv's automatic
+  search. The automatic search only looks in the current/parent directories,
+  not subdirectories — so depending on which directory `uvicorn` is launched
+  from, it could silently fail to find `app/.env` and crash with
+  "SECRET_KEY is not set." Explicitly pointing at the file removes that
+  fragility entirely.
 
-## Technology
+**Action needed:** pull this latest version on the Oracle VM
+(see "Syncing GitHub and the VM" below) and restart the server to pick up
+both fixes.
 
-* Python
-* Flask
-* SQLite
-* Pandas
-* Bootstrap
-* Chart.js
+## Overview
 
-## Monthly Workflow
+Each coach logs in with their own email/password (no open registration —
+accounts are created once via `create_coaches.py`) and drafts a 9-rider
+roster within a €100 salary cap. Everyone manages their own team from
+their own device.
 
-1. Download rent roll CSV from property manager.
-2. Open Rent Roll Portal.
-3. Upload the file.
-4. Select the snapshot date.
-5. Import.
+## Tech Stack
 
-The dashboard updates automatically and preserves all previous months.
+* **Framework:** FastAPI
+* **Database:** SQLite with SQLAlchemy ORM
+* **Templates:** Jinja2 + Tailwind CSS (via CDN)
+* **Auth:** bcrypt password hashing via passlib, session cookies via Starlette
+  `SessionMiddleware` (signed using `itsdangerous`)
 
-## Repository Structure
+## Setup & Usage (fresh install)
 
-rent-roll-portal/
-
-```
-app.py
-
-activity.py
-importer.py
-models.py
-
-database/
-    rent_roll.db
-
-uploads/
-
-templates/
-    dashboard.html
-    upload.html
-
-static/
-    style.css
-
-README.md
-ROADMAP.md
-requirements.txt
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-## Dashboard Components
+Create `app/.env` by hand (never commit this file — it's in `.gitignore`):
+```
+SECRET_KEY=<generate with: python3 -c "import secrets; print(secrets.token_hex(32))">
+DATABASE_URL=sqlite:///./letour.db
+ADMIN_EMAIL=your-email@example.com
+```
 
-### Portfolio Summary
+Create the 3 coach accounts (one-time, safe to re-run):
+```bash
+python3 create_coaches.py
+```
 
-Current snapshot metrics.
+Run the app:
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
 
-### Unit Inventory & Rent Health
+To keep it running after closing the SSH session:
+```bash
+nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &
+```
 
-Displays:
+## Syncing GitHub and the Oracle VM
 
-* Property
-* Unit
-* Status
-* Current Rent
-* Last Increase
-* Next Increase Due
+GitHub (`thedza49/letour`, `main` branch) is the source of truth for code.
+The Oracle VM should always be a `git pull` away from matching it exactly,
+**except** for `app/.env`, `letour.db`, and `venv/`, which only ever exist
+locally on the VM and are never pushed to GitHub (enforced by `.gitignore`).
 
-### Recent Activity
+To bring the VM in sync with the latest GitHub commit:
+```bash
+cd ~/letour
+git fetch origin
+git reset --hard origin/main
+pip install -r requirements.txt   # picks up any new dependencies
+```
+Then restart the running server (kill the old `uvicorn`/`nohup` process and
+start it again) so the new code actually takes effect.
 
-Tracks:
+**Important:** `git reset --hard` only touches files Git already tracks.
+Untracked clutter (old experiments, stray `.pyc` files, leftover folders from
+earlier attempts at this project) won't be removed by this and can pile up
+over time. Periodically worth checking `git status` for an `Untracked files`
+list that's grown unexpectedly.
 
-* New tenants
-* Rent increases
-* Vacancies
-* Reoccupied units
+## Known Placeholder Data
 
-### Financial Trends
+`app/models.py` seeds a starter pool of 12 placeholder riders (real names,
+made-up prices) on first run, purely so drafting is testable. This is not
+the real 2026 startlist. `_archived_scripts/` contains two earlier, unfinished
+attempts at automated rider import from ProCyclingStats — parked there for
+reference, not currently used.
 
-Historical charts:
+## Project Roadmap
 
-* Gross Rent
-* Occupancy
+* [x] **Phase A:** Real per-coach auth, fixed budget/roster rules, Jinja
+  templates, fixed crash bugs, secrets out of source code, dependency and
+  dotenv-loading fixes
+* [ ] **Phase B:** Captain selection (2x score multiplier), transfer windows,
+  add/drop history
+* [ ] **Phase C:** Automated stage results sync + scoring engine, DNF/DNS
+  handling, real rider startlist import
 
-Supports:
-
-* Last 12 months
-* Last 24 months
-
-## Data Storage
-
-SQLite stores:
-
-### Snapshots
-
-One record for each monthly import.
-
-### Unit Snapshots
-
-Historical copy of every unit for every month.
-
-### Activities
-
-Permanent event history generated from comparing consecutive snapshots.
-
-## Deployment
-
-Designed to run continuously on a Raspberry Pi.
-
-No Docker required.
-
-No external database required.
-
-No cloud services required.
-
-## License
-
-Personal use.
+---
