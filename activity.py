@@ -1,5 +1,6 @@
 from models import db, Activity, UnitSnapshot
 
+
 def generate_activities(current_snapshot, previous_snapshot):
 
     if previous_snapshot is None:
