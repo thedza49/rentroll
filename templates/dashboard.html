@@ -194,11 +194,11 @@
             <thead>
 
                 <tr>
-                    <th>Property</th>
-                    <th>Unit</th>
+                    <th>Property/Unit</th>
                     <th>Status</th>
                     <th>Rent</th>
-                    <th>Next Increase</th>
+                    <th>Last Increase</th>
+                    <th>Next Increase Due</th>
                 </tr>
 
             </thead>
@@ -210,11 +210,12 @@
             <tr>
 
                 <td>
-                    {{ unit.property_name }}
-                </td>
-
-                <td>
-                    {{ unit.unit_name }}
+                    <div class="fw-bold">
+                        {{ unit.property_name }}
+                    </div>
+                    <div class="text-muted small">
+                        {{ unit.unit_name }}
+                    </div>
                 </td>
 
                 <td>
@@ -242,9 +243,22 @@
                 </td>
 
                 <td>
+                    {% if unit.last_increase %}
+                        {{ unit.last_increase.date.strftime('%b %Y') }}
+                        <span class="text-muted small">
+                            ({{ "%.1f"|format(unit.last_increase.percent_change) }}%)
+                        </span>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
 
-                    {{ unit.next_increase_date or "" }}
-
+                <td>
+                    {% if unit.next_increase_due %}
+                        {{ unit.next_increase_due.strftime('%b %Y') }}
+                    {% else %}
+                        -
+                    {% endif %}
                 </td>
 
             </tr>

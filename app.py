@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 from flask import Flask, render_template, request, redirect, url_for
 
@@ -55,7 +56,52 @@ def dashboard():
     else:
         snapshot = snapshots[0]
 
-    units = (
+    # Subquery to find the latest rent increase date for each unit
+    # on or before the current snapshot date
+    latest_increase_sub = (
+        db.session.query(
+            Activity.property_name,
+            Activity.unit_name,
+            db.func.max(Activity.event_date).label("max_date")
+        )
+        .filter(
+            Activity.event_type == "rent_increase",
+            Activity.event_date <= snapshot.snapshot_date
+        )
+        .group_by(Activity.property_name, Activity.unit_name)
+        .subquery()
+    )
+
+    # Join the subquery back to Activity to get the percent_change
+    latest_activities = (
+        db.session.query(
+            Activity.property_name,
+            Activity.unit_name,
+            Activity.event_date,
+            Activity.percent_change
+        )
+        .join(
+            latest_increase_sub,
+            db.and_(
+                Activity.property_name == latest_increase_sub.c.property_name,
+                Activity.unit_name == latest_increase_sub.c.unit_name,
+                Activity.event_date == latest_increase_sub.c.max_date
+            )
+        )
+        .filter(Activity.event_type == "rent_increase")
+        .all()
+    )
+
+    # Create a lookup for activities by (property, unit)
+    activity_lookup = {
+        (a.property_name, a.unit_name): {
+            "date": a.event_date,
+            "percent_change": a.percent_change
+        }
+        for a in latest_activities
+    }
+
+    units_raw = (
         UnitSnapshot.query
         .filter_by(snapshot_id=snapshot.id)
         .order_by(
@@ -64,6 +110,21 @@ def dashboard():
         )
         .all()
     )
+
+    # Attach the latest activity to each unit object
+    for unit in units_raw:
+        activity = activity_lookup.get(
+            (unit.property_name, unit.unit_name)
+        )
+        unit.last_increase = activity
+
+        # Calculate next increase due (12 months after last increase)
+        if activity:
+            unit.next_increase_due = activity["date"] + relativedelta(years=1)
+        else:
+            unit.next_increase_due = None
+
+    units = units_raw
 
     activities = (
         Activity.query

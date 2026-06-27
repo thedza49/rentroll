@@ -64,13 +64,24 @@ def import_rent_roll(csv_path, snapshot_date):
     #
     # Loop through rows
     #
+    current_property = ""
+
     for _, row in df.iterrows():
+
+        unit_name = str(row.get("Unit", ""))
+
+        if unit_name.startswith("->"):
+            current_property = unit_name.replace("->", "").strip()
+            continue
+
+        if not unit_name or pd.isna(row.get("Unit")):
+            continue
 
         unit = UnitSnapshot(
             snapshot_id=snapshot.id,
 
-            property_name=row.get("Property", ""),
-            unit_name=row.get("Unit", ""),
+            property_name=current_property,
+            unit_name=unit_name,
 
             status=row.get("Status", ""),
 
