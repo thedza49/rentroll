@@ -38,7 +38,9 @@ def dashboard():
     if not snapshots:
         return render_template(
             "dashboard.html",
-            snapshot=None
+            snapshot=None,
+            chart_labels=[],
+            gross_rents=[]
         )
 
     snapshot_date = request.args.get("snapshot_date")

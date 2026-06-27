@@ -4,124 +4,120 @@ from models import db, Snapshot, UnitSnapshot
 from activity import generate_activities
 
 def parse_date(value):
-if pd.isna(value):
-return None
+    if pd.isna(value):
+        return None
 
-```
-try:
-    return pd.to_datetime(value).date()
-except:
-    return None
-```
+    try:
+        return pd.to_datetime(value).date()
+    except:
+        return None
+
 
 def parse_money(value):
-if pd.isna(value):
-return 0
+    if pd.isna(value):
+        return 0
 
-```
-try:
-    return float(str(value).replace("$", "").replace(",", ""))
-except:
-    return 0
-```
+    try:
+        return float(str(value).replace("$", "").replace(",", ""))
+    except:
+        return 0
+
 
 def import_rent_roll(csv_path, snapshot_date):
 
-```
-#
-# Remove existing snapshot if it already exists
-#
-existing_snapshot = Snapshot.query.filter_by(
-    snapshot_date=snapshot_date
-).first()
+    #
+    # Remove existing snapshot if it already exists
+    #
+    existing_snapshot = Snapshot.query.filter_by(
+        snapshot_date=snapshot_date
+    ).first()
 
-if existing_snapshot:
-    db.session.delete(existing_snapshot)
-    db.session.commit()
+    if existing_snapshot:
+        db.session.delete(existing_snapshot)
+        db.session.commit()
 
-#
-# Find previous snapshot before creating current
-#
-previous_snapshot = (
-    Snapshot.query
-    .filter(Snapshot.snapshot_date < snapshot_date)
-    .order_by(Snapshot.snapshot_date.desc())
-    .first()
-)
-
-#
-# Create new snapshot
-#
-snapshot = Snapshot(
-    snapshot_date=snapshot_date
-)
-
-db.session.add(snapshot)
-db.session.commit()
-
-#
-# Read CSV
-#
-df = pd.read_csv(csv_path)
-
-#
-# Loop through rows
-#
-for _, row in df.iterrows():
-
-    unit = UnitSnapshot(
-        snapshot_id=snapshot.id,
-
-        property_name=row.get("Property", ""),
-        unit_name=row.get("Unit", ""),
-
-        status=row.get("Status", ""),
-
-        rent=parse_money(
-            row.get("Rent", 0)
-        ),
-
-        deposit=parse_money(
-            row.get("Deposit", 0)
-        ),
-
-        lease_from=parse_date(
-            row.get("Lease From")
-        ),
-
-        lease_to=parse_date(
-            row.get("Lease To")
-        ),
-
-        move_in_date=parse_date(
-            row.get("Move In")
-        ),
-
-        move_out_date=parse_date(
-            row.get("Move Out")
-        ),
-
-        next_increase_date=parse_date(
-            row.get("Next Rent Increase")
-        )
+    #
+    # Find previous snapshot before creating current
+    #
+    previous_snapshot = (
+        Snapshot.query
+        .filter(Snapshot.snapshot_date < snapshot_date)
+        .order_by(Snapshot.snapshot_date.desc())
+        .first()
     )
 
-    db.session.add(unit)
+    #
+    # Create new snapshot
+    #
+    snapshot = Snapshot(
+        snapshot_date=snapshot_date
+    )
 
-db.session.commit()
+    db.session.add(snapshot)
+    db.session.commit()
 
-#
-# Refresh snapshot so units relationship exists
-#
-db.session.refresh(snapshot)
+    #
+    # Read CSV
+    #
+    df = pd.read_csv(csv_path)
 
-#
-# Build activity history
-#
-generate_activities(
-    current_snapshot=snapshot,
-    previous_snapshot=previous_snapshot
-)
+    #
+    # Loop through rows
+    #
+    for _, row in df.iterrows():
 
-return snapshot
-```
+        unit = UnitSnapshot(
+            snapshot_id=snapshot.id,
+
+            property_name=row.get("Property", ""),
+            unit_name=row.get("Unit", ""),
+
+            status=row.get("Status", ""),
+
+            rent=parse_money(
+                row.get("Rent", 0)
+            ),
+
+            deposit=parse_money(
+                row.get("Deposit", 0)
+            ),
+
+            lease_from=parse_date(
+                row.get("Lease From")
+            ),
+
+            lease_to=parse_date(
+                row.get("Lease To")
+            ),
+
+            move_in_date=parse_date(
+                row.get("Move In")
+            ),
+
+            move_out_date=parse_date(
+                row.get("Move Out")
+            ),
+
+            next_increase_date=parse_date(
+                row.get("Next Rent Increase")
+            )
+        )
+
+        db.session.add(unit)
+
+    db.session.commit()
+
+    #
+    # Refresh snapshot so units relationship exists
+    #
+    db.session.refresh(snapshot)
+
+    #
+    # Build activity history
+    #
+    generate_activities(
+        current_snapshot=snapshot,
+        previous_snapshot=previous_snapshot
+    )
+
+    return snapshot
