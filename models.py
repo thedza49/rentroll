@@ -72,3 +72,23 @@ class Activity(db.Model):
     property_name = db.Column(
         db.String(255)
     )
+
+    unit_name = db.Column(
+        db.String(255)
+    )
+
+    description = db.Column(
+        db.Text
+    )
+
+    old_rent = db.Column(
+        db.Float
+    )
+
+    new_rent = db.Column(
+        db.Float
+    )
+
+    percent_change = db.Column(
+        db.Float
+    )
