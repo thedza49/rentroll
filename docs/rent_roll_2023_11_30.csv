@@ -1,0 +1,22 @@
+Unit,Status,Rent,Deposit,Lease From,Lease To,Move-in,Move-out,Next Rent Increase Date
+
+"-> 2366-2368 N 44th St. (Duplex) - 2366-2368 N 44th St. Milwaukee, WI 53210","","","","","","","",""
+2366 Lower,Current,825.00,825.00,08/23/2023,,08/23/2023,,03/01/2024
+2368 Upper,Vacant-Rented,,0.00,,,,,
+2 Units,50.0% Occupied,825.00,825.00,,,,,
+"-> 2671-2673 N 45th St. (Duplex) - 2671-2673 N 45th St. Milwaukee, WI 53210","","","","","","","",""
+2671 (Lower),Notice-Unrented,"1,150.00","1,150.00",11/01/2023,10/31/2024,11/01/2023,02/28/2026,11/01/2025
+2673 (Upper),Notice-Rented,"1,150.00","1,150.00",11/03/2023,07/31/2025,11/03/2023,07/10/2025,08/01/2024
+2 Units,100.0% Occupied,"2,300.00","2,300.00",,,,,
+"-> 5541-5543 N 35th St. (Duplex) - 5541-5543 N 35th St. Milwaukee, WI 53209","","","","","","","",""
+5541 (Lower),Vacant-Rented,,0.00,,,,,
+5543 (Upper),Notice-Rented,975.00,925.00,11/10/2022,04/30/2026,11/10/2022,09/08/2025,03/01/2024
+2 Units,50.0% Occupied,975.00,925.00,,,,,
+"-> 752 N 26th St. (4 Unit) - 752 N 26th St. Milwaukee, WI 53233","","","","","","","",""
+1,Vacant-Rented,,0.00,,,,,
+2,Vacant-Rented,,0.00,,,,,
+3,Vacant-Rented,,0.00,,,,,
+4,Vacant-Rented,,0.00,,,,,
+4 Units,0.0% Occupied,0.00,0.00,,,,,
+
+Total 10 Units,40.0% Occupied,"4,100.00","4,050.00",,,,,
