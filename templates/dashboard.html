@@ -36,7 +36,18 @@
         {% endif %}
     </div>
 
-    <div>
+    <div class="text-end">
+
+        {% if snapshot %}
+        <div class="mb-2">
+            <div class="small text-muted text-uppercase fw-bold" style="font-size: 12px; letter-spacing: 0.5px;">
+                Potential Gross
+            </div>
+            <div class="h3 mb-0 fw-bold">
+                ${{ "{:,.0f}".format(potential_gross) }}
+            </div>
+        </div>
+        {% endif %}
 
         <a
             href="/upload"
@@ -54,26 +65,6 @@
 {% if snapshot %}
 
 <div class="row mb-4">
-
-    <div class="col-md-3">
-
-        <div class="card metric-card">
-
-            <div class="card-body">
-
-                <div class="metric-label">
-                    Potential Gross
-                </div>
-
-                <div class="metric-value">
-                    ${{ "{:,.0f}".format(potential_gross) }}
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
 
     <div class="col-md-3">
 

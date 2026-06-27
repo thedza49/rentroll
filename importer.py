@@ -64,15 +64,30 @@ def import_rent_roll(csv_path, snapshot_date):
     #
     # Loop through rows
     #
+    current_property = "Unknown"
+
     for _, row in df.iterrows():
+
+        unit_val = str(row.get("Unit", "")).strip()
+        status_val = str(row.get("Status", "")).strip()
+
+        if not unit_val or unit_val == "nan":
+            continue
+
+        if unit_val.startswith("->"):
+            current_property = unit_val.replace("->", "").strip()
+            continue
+
+        if "Units" in unit_val and "Occupied" in status_val:
+            continue
 
         unit = UnitSnapshot(
             snapshot_id=snapshot.id,
 
-            property_name=row.get("Property", ""),
-            unit_name=row.get("Unit", ""),
+            property_name=current_property,
+            unit_name=unit_val,
 
-            status=row.get("Status", ""),
+            status=status_val,
 
             rent=parse_money(
                 row.get("Rent", 0)
