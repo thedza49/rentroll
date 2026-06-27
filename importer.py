@@ -77,7 +77,7 @@ def import_rent_roll(csv_path, snapshot_date):
             current_property = unit_name.replace("->", "").strip()
             continue
 
-        if "Units" in unit_name:
+        if any(word in unit_name.lower() for word in ["total", "units"]):
             continue
 
         unit = UnitSnapshot(

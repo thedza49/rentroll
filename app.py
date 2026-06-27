@@ -75,42 +75,12 @@ def dashboard():
         .all()
     )
 
-    potential_gross = sum(
-        unit.rent or 0
-        for unit in units
-    )
-
-    chart_snapshots = (
-        Snapshot.query
-        .order_by(Snapshot.snapshot_date)
-        .all()
-    )
-
-    chart_labels = []
-    gross_rents = []
-
-    for s in chart_snapshots:
-
-        total = sum(
-            unit.rent or 0
-            for unit in s.units
-        )
-
-        chart_labels.append(
-            s.snapshot_date.strftime("%b %Y")
-        )
-
-        gross_rents.append(total)
-
     return render_template(
         "dashboard.html",
         snapshot=snapshot,
         snapshots=snapshots,
         units=units,
-        activities=activities,
-        potential_gross=potential_gross,
-        chart_labels=chart_labels,
-        gross_rents=gross_rents
+        activities=activities
     )
 
 
