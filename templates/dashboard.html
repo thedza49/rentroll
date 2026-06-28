@@ -13,7 +13,7 @@
 
 <link
     rel="stylesheet"
-    href="{{ url_for('static', filename='style.css') }}">
+    href="{{ url_for('static', filename='style.css') }}?v=2">
 
 
 </head>
@@ -88,9 +88,93 @@
 </div>
 
 
-<div class="row mb-5">
+<div class="row g-4">
 
-    <div class="col-md-12">
+    <div class="col-lg-8">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                Unit Inventory & Rent Health
+
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-hover">
+
+                    <thead>
+
+                        <tr>
+                            <th>Property</th>
+                            <th>Unit</th>
+                            <th>Status</th>
+                            <th>Rent</th>
+                            <th>Next Increase</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for unit in units %}
+
+                    <tr>
+
+                        <td>
+                            {{ unit.property_name }}
+                        </td>
+
+                        <td>
+                            {{ unit.unit_name }}
+                        </td>
+
+                        <td>
+
+                            {% if unit.status == "Vacant-Unrented" %}
+
+                            <span class="status-red">
+                                {{ unit.status }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="status-green">
+                                {{ unit.status }}
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            ${{ "{:,.0f}".format(unit.rent or 0) }}
+
+                        </td>
+
+                        <td>
+
+                            {{ unit.next_increase_date or "" }}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
 
         <div class="card">
 
@@ -102,31 +186,25 @@
 
             <div class="card-body">
 
-                <div class="row">
-
                 {% for activity in activities %}
 
-                <div class="col-md-3 mb-3">
+                <div class="activity-row">
 
-                    <div class="activity-row h-100">
+                    <div class="fw-bold">
 
-                        <div class="fw-bold">
+                        {{ activity.unit_name }}
 
-                            {{ activity.unit_name }}
+                    </div>
 
-                        </div>
+                    <div>
 
-                        <div>
+                        {{ activity.description }}
 
-                            {{ activity.description }}
+                    </div>
 
-                        </div>
+                    <div class="small text-muted">
 
-                        <div class="small text-muted">
-
-                            {{ activity.event_date }}
-
-                        </div>
+                        {{ activity.event_date }}
 
                     </div>
 
@@ -134,92 +212,9 @@
 
                 {% endfor %}
 
-                </div>
-
             </div>
 
         </div>
-
-    </div>
-
-</div>
-
-
-<div class="card">
-
-    <div class="card-header">
-
-        Unit Inventory & Rent Health
-
-    </div>
-
-    <div class="card-body">
-
-        <table class="table table-hover">
-
-            <thead>
-
-                <tr>
-                    <th>Property</th>
-                    <th>Unit</th>
-                    <th>Status</th>
-                    <th>Rent</th>
-                    <th>Next Increase</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-            {% for unit in units %}
-
-            <tr>
-
-                <td>
-                    {{ unit.property_name }}
-                </td>
-
-                <td>
-                    {{ unit.unit_name }}
-                </td>
-
-                <td>
-
-                    {% if unit.status == "Vacant-Unrented" %}
-
-                    <span class="status-red">
-                        {{ unit.status }}
-                    </span>
-
-                    {% else %}
-
-                    <span class="status-green">
-                        {{ unit.status }}
-                    </span>
-
-                    {% endif %}
-
-                </td>
-
-                <td>
-
-                    ${{ "{:,.0f}".format(unit.rent or 0) }}
-
-                </td>
-
-                <td>
-
-                    {{ unit.next_increase_date or "" }}
-
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-            </tbody>
-
-        </table>
 
     </div>
 
