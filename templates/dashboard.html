@@ -190,23 +190,41 @@
 
                 <div class="activity-row">
 
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <div class="small text-muted">
+                            {{ activity.event_date }}
+                        </div>
+
+                        {% if activity.event_type == "rent_increase" %}
+                        <span class="tag tag-increase">RENEWAL/INCREASE</span>
+                        {% elif activity.event_type == "reoccupied" %}
+                        <span class="tag tag-new">NEW TENANT</span>
+                        {% endif %}
+
+                    </div>
+
                     <div class="fw-bold">
-
                         {{ activity.unit_name }}
-
                     </div>
 
-                    <div>
+                    <div class="small-muted">
+                        {{ activity.property_name|short_property }}
+                    </div>
 
+                    {% if activity.event_type == "rent_increase" %}
+                    <div class="activity-detail text-increase">
                         {{ activity.description }}
-
                     </div>
-
-                    <div class="small text-muted">
-
-                        {{ activity.event_date }}
-
+                    {% elif activity.event_type == "reoccupied" %}
+                    <div class="activity-detail text-new">
+                        {{ activity.description }}
                     </div>
+                    {% else %}
+                    <div class="activity-detail">
+                        {{ activity.description }}
+                    </div>
+                    {% endif %}
 
                 </div>
 
