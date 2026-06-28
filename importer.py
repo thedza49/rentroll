@@ -113,7 +113,7 @@ def import_rent_roll(csv_path, snapshot_date):
             ),
 
             next_increase_date=parse_date(
-                row.get("Next Rent Increase")
+                row.get("Next Rent Increase Date")
             )
         )
 
