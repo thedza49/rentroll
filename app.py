@@ -26,6 +26,19 @@ with app.app_context():
     db.create_all()
 
 
+@app.template_filter("short_property")
+def short_property_filter(value):
+    """
+    Property names in the source export repeat themselves, e.g.
+    "2366-2368 N 44th St. (Duplex) - 2366-2368 N 44th St. Milwaukee, WI 53210"
+    Show only the part before the first " - " for a cleaner label.
+    """
+    if not value:
+        return value
+
+    return value.split(" - ")[0].strip()
+
+
 @app.route("/")
 def dashboard():
 
