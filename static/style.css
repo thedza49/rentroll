@@ -40,6 +40,46 @@ margin-bottom: 15px;
 border-bottom: 1px solid #eeeeee;
 }
 
+.small-muted {
+font-size: 12px;
+color: #6c757d;
+}
+
+.activity-detail {
+font-size: 13px;
+font-weight: 600;
+margin-top: 4px;
+}
+
+.text-increase {
+color: #16a34a;
+}
+
+.text-new {
+color: #2563eb;
+}
+
+.tag {
+display: inline-block;
+padding: 2px 8px;
+border-radius: 6px;
+font-size: 11px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.02em;
+white-space: nowrap;
+}
+
+.tag-increase {
+background-color: #ffedd5;
+color: #c2410c;
+}
+
+.tag-new {
+background-color: #dbeafe;
+color: #1d4ed8;
+}
+
 .status-green {
 display: inline-block;
 background-color: #dcfce7;
