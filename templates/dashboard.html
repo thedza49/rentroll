@@ -156,7 +156,11 @@
 
                         <td>
 
-                            {{ unit.next_increase_date or "" }}
+                            {% if unit.next_increase_computed %}
+                                {{ unit.next_increase_computed.strftime('%B %Y') }}
+                            {% else %}
+                                -
+                            {% endif %}
 
                         </td>
 
