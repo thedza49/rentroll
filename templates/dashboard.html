@@ -157,7 +157,15 @@
                         <td>
 
                             {% if unit.next_increase_computed %}
+
+                                {% if unit.next_increase_computed < snapshot.snapshot_date %}
+                                <span class="status-red">
+                                    {{ unit.next_increase_computed.strftime('%B %Y') }} (overdue)
+                                </span>
+                                {% else %}
                                 {{ unit.next_increase_computed.strftime('%B %Y') }}
+                                {% endif %}
+
                             {% else %}
                                 -
                             {% endif %}
