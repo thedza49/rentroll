@@ -105,11 +105,11 @@ def import_rent_roll(csv_path, snapshot_date):
             ),
 
             move_in_date=parse_date(
-                row.get("Move In")
+                row.get("Move-in")
             ),
 
             move_out_date=parse_date(
-                row.get("Move Out")
+                row.get("Move-out")
             ),
 
             next_increase_date=parse_date(
