@@ -1,10 +1,13 @@
 import os
-from datetime import datetime
+from datetime import datetime, date
+
+from dateutil.relativedelta import relativedelta
 
 from flask import Flask, render_template, request, redirect, url_for
 
 from models import db, Snapshot, UnitSnapshot, Activity
 from importer import import_rent_roll
+from activity import VACANT_STATUSES
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -37,6 +40,58 @@ def short_property_filter(value):
         return value
 
     return value.split(" - ")[0].strip()
+
+
+def calculate_next_increase(unit, as_of_date):
+    """
+    The property manager's export used to include a "Next Rent Increase
+    Date" column, but it stopped being populated. Looking at the months
+    where it WAS populated, it always worked out to: the month of the
+    last rent change, plus 12 months. So we compute it the same way from
+    our own activity history instead of relying on that column.
+
+    Vacant units have no active tenancy to project a next increase from,
+    so they return None.
+    """
+
+    if unit.status in VACANT_STATUSES:
+        return None
+
+    last_change = (
+        Activity.query
+        .filter(
+            Activity.property_name == unit.property_name,
+            Activity.unit_name == unit.unit_name,
+            Activity.event_type.in_(["rent_increase", "reoccupied"]),
+            Activity.event_date <= as_of_date
+        )
+        .order_by(Activity.event_date.desc())
+        .first()
+    )
+
+    if last_change:
+        base_date = date(
+            last_change.event_date.year,
+            last_change.event_date.month,
+            1
+        )
+
+    elif unit.lease_from:
+        #
+        # No rent-change activity on record for this unit at all (e.g.
+        # it's been in the same tenancy since before our first snapshot).
+        # Fall back to the lease start month as the best guess we have.
+        #
+        base_date = date(
+            unit.lease_from.year,
+            unit.lease_from.month,
+            1
+        )
+
+    else:
+        return None
+
+    return base_date + relativedelta(months=12)
 
 
 @app.route("/")
@@ -77,6 +132,16 @@ def dashboard():
         )
         .all()
     )
+
+    #
+    # Attach a computed "next increase" date to each unit for the
+    # template to display, since the source data no longer provides one.
+    #
+    for unit in units:
+        unit.next_increase_computed = calculate_next_increase(
+            unit=unit,
+            as_of_date=snapshot.snapshot_date
+        )
 
     activities = (
         Activity.query
