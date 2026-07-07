@@ -37,7 +37,7 @@
 
     <div>
 
-        <a
+        
             href="/upload"
             class="btn btn-primary">
 
@@ -217,9 +217,20 @@
                         {{ activity.description }}
                     </div>
                     {% elif activity.event_type == "reoccupied" %}
+
+                    {% set main_part = activity.description.split(" • ")[0] %}
+                    {% set vacancy_part = activity.description.split(" • ")[1] if " • " in activity.description else None %}
+
                     <div class="activity-detail text-new">
-                        {{ activity.description }}
+                        {{ main_part }}
                     </div>
+
+                    {% if vacancy_part %}
+                    <div class="small text-muted">
+                        {{ vacancy_part }}
+                    </div>
+                    {% endif %}
+
                     {% else %}
                     <div class="activity-detail">
                         {{ activity.description }}
@@ -246,7 +257,7 @@
 
     <br><br>
 
-    <a
+    
         href="/upload"
         class="btn btn-primary">
 
