@@ -1,130 +1,65 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Rent Roll Dashboard</title>
+# Rent Roll Portal
 
-    <!-- Styling (fixes ugly font + layout + colors) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+A Flask/SQLite dashboard for tracking a small rental property portfolio from
+monthly rent roll CSV exports. Built to run on a Raspberry Pi.
 
-    <style>
-        body {
-            background: #f6f7fb;
-            font-family: Arial, sans-serif;
-        }
+## What it does
 
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
+Each month, upload the CSV export from the property manager. The app:
 
-        .table td, .table th {
-            vertical-align: middle;
-        }
+- Stores the upload as a dated **snapshot** (one row per unit).
+- Diffs it against the previous snapshot to build an **activity feed**
+  (units going vacant, units being reoccupied, rent increases).
+- Computes a **Next Increase** date per unit from activity history, since
+  the property manager's export no longer reliably populates that column.
+- Lets you page back through any past snapshot from a dropdown.
 
-        .small-muted {
-            font-size: 12px;
-            color: #6c757d;
-        }
-    </style>
-</head>
+## Project structure
 
-<body>
+```
+app.py              Flask routes: dashboard, snapshot selector, upload
+models.py           SQLAlchemy models: Snapshot, UnitSnapshot, Activity
+importer.py         Parses the uploaded CSV into a Snapshot + UnitSnapshots
+activity.py         Diffs two snapshots into Activity rows (vacancy,
+                     reoccupied, rent_increase)
+templates/          dashboard.html, upload.html
+static/style.css    Dashboard styling
+docs/                Historical rent roll exports (CSV/XLSX), for reference
+```
 
-<div class="container-fluid p-4">
+## Setup
 
-    <h3 class="mb-4">Rent Roll Dashboard</h3>
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-    <div class="row g-4">
+Copy `sample.env` to `.env` and adjust if needed.
 
-        <!-- LEFT: Units -->
-        <div class="col-lg-8">
+## Running
 
-            <div class="card p-3">
+```bash
+source venv/bin/activate
+python3 app.py
+```
 
-                <h5 class="mb-3">Units</h5>
+The app runs on `http://<host>:5050`. `uploads/` and `database/` are created
+automatically on first run and are git-ignored.
 
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Property / Unit</th>
-                            <th>Status</th>
-                            <th>Rent</th>
-                            <th>Last Increase</th>
-                            <th>Next Increase Due</th>
-                        </tr>
-                    </thead>
+## Uploading a rent roll
 
-                    <tbody>
-                        {% for unit in units %}
-                        <tr>
-                            <td>
-                                <div><strong>{{ unit.property_name }}</strong></div>
-                                <div class="small-muted">{{ unit.unit_name }}</div>
-                            </td>
+1. Go to **Upload Snapshot**.
+2. Select the CSV export and the date it's "as of."
+3. Submit. If a snapshot for that date already exists, it's replaced.
 
-                            <td>{{ unit.status }}</td>
-                            <td>${{ unit.rent }}</td>
+Expected CSV columns: `Unit, Status, Rent, Deposit, Lease From, Lease To,
+Move-in, Move-out, Next Rent Increase Date`. Property names are inferred
+from `-> ` marker rows in the `Unit` column, matching the property
+manager's export format.
 
-                            <td>
-                                {% if unit.last_increase %}
-                                    {{ unit.last_increase.date.strftime('%Y-%m-%d') }}
-                                    <div class="small-muted">
-                                        {{ "%.1f"|format(unit.last_increase.percent_change) }}%
-                                    </div>
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
+## Notes
 
-                            <td>
-                                {% if unit.next_increase_due %}
-                                    {{ unit.next_increase_due.strftime('%Y-%m-%d') }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
-
-        <!-- RIGHT: Activity -->
-        <div class="col-lg-4">
-
-            <div class="card p-3">
-
-                <h5 class="mb-3">Recent Activity</h5>
-
-                <table class="table table-sm table-striped">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Unit</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for a in activities %}
-                        <tr>
-                            <td>{{ a.event_date }}</td>
-                            <td>{{ a.event_type }}</td>
-                            <td>{{ a.property_name }} / {{ a.unit_name }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-</body>
-</html>
+- No authentication — intended for local/home-network use only.
+- No systemd service configured; run manually via the command above.
+- See `roadmap.md` for planned features.
