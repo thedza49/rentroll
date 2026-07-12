@@ -80,6 +80,18 @@ def import_rent_roll(csv_path, snapshot_date):
         if any(word in unit_name.lower() for word in ["total", "units"]):
             continue
 
+        #
+        # 752 N 26th St. is a 4-unit building where the property manager's
+        # export just labels units "1", "2", "3", "4" with no address
+        # number of their own (unlike the duplexes, e.g. "2366 Lower",
+        # where each side has its own street number). Normalize these to
+        # match the same "[street number] [unit]" convention used
+        # everywhere else, e.g. "752 Unit 1".
+        #
+        if unit_name.isdigit():
+            street_number = current_property.split()[0].split("-")[0]
+            unit_name = f"{street_number} Unit {unit_name}"
+
         unit = UnitSnapshot(
             snapshot_id=snapshot.id,
 
