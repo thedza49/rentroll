@@ -49,6 +49,18 @@ def format_vacancy_duration(days):
 
 def generate_activities(current_snapshot, previous_snapshot):
 
+    #
+    # Clear out any activities already recorded for this snapshot's date
+    # before regenerating them. Without this, re-importing a date that's
+    # already been processed (e.g. re-running seed_data.py, or re-uploading
+    # a snapshot) creates duplicate activity rows instead of replacing them.
+    #
+    Activity.query.filter_by(
+        event_date=current_snapshot.snapshot_date
+    ).delete()
+
+    db.session.commit()
+
     if previous_snapshot is None:
         return
 
