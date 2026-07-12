@@ -178,6 +178,16 @@
 
                     </tbody>
 
+                    <tfoot>
+
+                        <tr>
+                            <th colspan="3" class="text-end">Total</th>
+                            <th>${{ "{:,.0f}".format(total_rent or 0) }}</th>
+                            <th></th>
+                        </tr>
+
+                    </tfoot>
+
                 </table>
 
             </div>
@@ -187,6 +197,22 @@
     </div>
 
     <div class="col-lg-4">
+
+        <div class="card mb-4">
+
+            <div class="card-header">
+
+                Financial Trends
+
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="financialTrendsChart"></canvas>
+
+            </div>
+
+        </div>
 
         <div class="card">
 
@@ -283,6 +309,78 @@
 
 
 </div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<script>
+
+const chartLabels = {{ chart_labels|tojson }};
+const chartTotalRent = {{ chart_total_rent|tojson }};
+const chartOccupancyPct = {{ chart_occupancy_pct|tojson }};
+
+const financialTrendsCanvas = document.getElementById("financialTrendsChart");
+
+if (financialTrendsCanvas) {
+
+    new Chart(financialTrendsCanvas, {
+        type: "line",
+        data: {
+            labels: chartLabels,
+            datasets: [
+                {
+                    label: "Total Rent",
+                    data: chartTotalRent,
+                    borderColor: "#16a34a",
+                    backgroundColor: "#16a34a",
+                    yAxisID: "y",
+                    tension: 0.2
+                },
+                {
+                    label: "Occupancy %",
+                    data: chartOccupancyPct,
+                    borderColor: "#2563eb",
+                    backgroundColor: "#2563eb",
+                    yAxisID: "y1",
+                    tension: 0.2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: "index",
+                intersect: false
+            },
+            scales: {
+                y: {
+                    type: "linear",
+                    position: "left",
+                    title: {
+                        display: true,
+                        text: "Total Rent ($)"
+                    }
+                },
+                y1: {
+                    type: "linear",
+                    position: "right",
+                    min: 0,
+                    max: 100,
+                    grid: {
+                        drawOnChartArea: false
+                    },
+                    title: {
+                        display: true,
+                        text: "Occupancy (%)"
+                    }
+                }
+            }
+        }
+    });
+
+}
+
+</script>
 
 
 </body>
