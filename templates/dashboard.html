@@ -198,22 +198,6 @@
 
     <div class="col-lg-4">
 
-        <div class="card mb-4">
-
-            <div class="card-header">
-
-                Financial Trends
-
-            </div>
-
-            <div class="card-body">
-
-                <canvas id="financialTrendsChart"></canvas>
-
-            </div>
-
-        </div>
-
         <div class="card">
 
             <div class="card-header">
@@ -287,6 +271,31 @@
 
 </div>
 
+
+<div class="row g-4 mt-0">
+
+    <div class="col-12">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                Financial Trends
+
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="financialTrendsChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 {% else %}
 
 <div class="alert alert-info">
@@ -324,19 +333,18 @@ const financialTrendsCanvas = document.getElementById("financialTrendsChart");
 if (financialTrendsCanvas) {
 
     new Chart(financialTrendsCanvas, {
-        type: "line",
         data: {
             labels: chartLabels,
             datasets: [
                 {
+                    type: "bar",
                     label: "Total Rent",
                     data: chartTotalRent,
-                    borderColor: "#16a34a",
                     backgroundColor: "#16a34a",
-                    yAxisID: "y",
-                    tension: 0.2
+                    yAxisID: "y"
                 },
                 {
+                    type: "line",
                     label: "Occupancy %",
                     data: chartOccupancyPct,
                     borderColor: "#2563eb",
