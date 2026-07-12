@@ -200,7 +200,7 @@ def dashboard():
             Activity.event_date.desc(),
             Activity.id.desc()
         )
-        .limit(20)
+        .limit(12)
         .all()
     )
 
