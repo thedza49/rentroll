@@ -1,65 +1,125 @@
-# Rent Roll Portal
+# Roadmap
 
-A Flask/SQLite dashboard for tracking a small rental property portfolio from
-monthly rent roll CSV exports. Built to run on a Raspberry Pi.
+## Version 1.0 (MVP)
 
-## What it does
+### Dashboard
 
-Each month, upload the CSV export from the property manager. The app:
+* Portfolio summary — done (total rent row on Unit Inventory table)
+* Unit Inventory & Rent Health — done
+* Recent Activity feed — done
+* Financial Trends chart — done (total rent + occupancy %, dual-axis)
+* Historical snapshot selector — done
 
-- Stores the upload as a dated **snapshot** (one row per unit).
-- Diffs it against the previous snapshot to build an **activity feed**
-  (units going vacant, units being reoccupied, rent increases).
-- Computes a **Next Increase** date per unit from activity history, since
-  the property manager's export no longer reliably populates that column.
-- Lets you page back through any past snapshot from a dropdown.
+### Import
 
-## Project structure
+* CSV upload — done
+* Snapshot date picker — done
+* Duplicate snapshot replacement — done
 
-```
-app.py              Flask routes: dashboard, snapshot selector, upload
-models.py           SQLAlchemy models: Snapshot, UnitSnapshot, Activity
-importer.py         Parses the uploaded CSV into a Snapshot + UnitSnapshots
-activity.py         Diffs two snapshots into Activity rows (vacancy,
-                     reoccupied, rent_increase)
-templates/          dashboard.html, upload.html
-static/style.css    Dashboard styling
-docs/                Historical rent roll exports (CSV/XLSX), for reference
-```
+### Storage
 
-## Setup
+* SQLite database — done
+* Permanent history — done
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+---
 
-Copy `sample.env` to `.env` and adjust if needed.
+## Version 1.1
 
-## Running
+### Lease Management
 
-```bash
-source venv/bin/activate
-python3 app.py
-```
+* Lease expiration calendar
+* Upcoming renewals
+* Expiring leases dashboard
 
-The app runs on `http://<host>:5050`. `uploads/` and `database/` are created
-automatically on first run and are git-ignored.
+### Additional Metrics
 
-## Uploading a rent roll
+* Vacancy percentage
+* Average rent
+* Occupied units
+* Vacant units
 
-1. Go to **Upload Snapshot**.
-2. Select the CSV export and the date it's "as of."
-3. Submit. If a snapshot for that date already exists, it's replaced.
+---
 
-Expected CSV columns: `Unit, Status, Rent, Deposit, Lease From, Lease To,
-Move-in, Move-out, Next Rent Increase Date`. Property names are inferred
-from `-> ` marker rows in the `Unit` column, matching the property
-manager's export format.
+## Version 1.2
 
-## Notes
+### Property Pages
 
-- No authentication — intended for local/home-network use only.
-- No systemd service configured; run manually via the command above.
-- See `roadmap.md` for planned features.
+* Property-level dashboards
+* Property trends
+* Unit history
+
+### Reporting
+
+* Export to PDF
+* Export to CSV
+
+---
+
+## Version 1.3
+
+### Google Drive Integration
+
+Automatically monitor a Google Drive folder and import new rent roll files.
+
+Workflow:
+
+Property Manager Export
+
+↓
+
+Google Drive Folder
+
+↓
+
+Rent Roll Portal
+
+↓
+
+Automatic Import
+
+No manual uploads required.
+
+---
+
+## Version 1.4
+
+### Notifications
+
+* Lease expiration reminders
+* Vacancy alerts
+* Rent increase reminders
+
+---
+
+## Version 1.5
+
+### Analytics
+
+* Rent growth trends
+* Vacancy trends
+* Property comparisons
+
+---
+
+## Data Cleanup
+
+* Rename units at 752 N 26th St. (was "1", "2", "3", "4") to match the
+  "[street number] [unit]" naming convention used everywhere else — done.
+  Normalized on import going forward (`importer.py`); existing history
+  updated via `migrate_26th_st_units.py`.
+
+---
+
+## Future Ideas
+
+* Expense tracking
+* Cash flow dashboard
+* Security deposit tracking
+* Cap rate metrics
+* Tenant history
+* Notes by property
+* Mobile-friendly layout improvements
+* Authentication
+* Multi-user support
+* Email reports
+* Backup and restore tools
