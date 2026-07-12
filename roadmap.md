@@ -4,22 +4,22 @@
 
 ### Dashboard
 
-* Portfolio summary
-* Unit Inventory & Rent Health
-* Recent Activity feed
-* Financial Trends chart
-* Historical snapshot selector
+- [x] Portfolio summary (total rent row on Unit Inventory table)
+- [x] Unit Inventory & Rent Health
+- [x] Recent Activity feed
+- [x] Financial Trends chart (total rent + occupancy %, dual-axis)
+- [x] Historical snapshot selector
 
 ### Import
 
-* CSV upload
-* Snapshot date picker
-* Duplicate snapshot replacement
+- [x] CSV upload
+- [x] Snapshot date picker
+- [x] Duplicate snapshot replacement
 
 ### Storage
 
-* SQLite database
-* Permanent history
+- [x] SQLite database
+- [x] Permanent history
 
 ---
 
@@ -27,16 +27,16 @@
 
 ### Lease Management
 
-* Lease expiration calendar
-* Upcoming renewals
-* Expiring leases dashboard
+- [ ] Lease expiration calendar
+- [ ] Upcoming renewals
+- [ ] Expiring leases dashboard
 
 ### Additional Metrics
 
-* Vacancy percentage
-* Average rent
-* Occupied units
-* Vacant units
+- [ ] Vacancy percentage
+- [ ] Average rent
+- [ ] Occupied units
+- [ ] Vacant units
 
 ---
 
@@ -44,14 +44,14 @@
 
 ### Property Pages
 
-* Property-level dashboards
-* Property trends
-* Unit history
+- [ ] Property-level dashboards
+- [ ] Property trends
+- [ ] Unit history
 
 ### Reporting
 
-* Export to PDF
-* Export to CSV
+- [ ] Export to PDF
+- [ ] Export to CSV
 
 ---
 
@@ -59,7 +59,7 @@
 
 ### Google Drive Integration
 
-Automatically monitor a Google Drive folder and import new rent roll files.
+- [ ] Automatically monitor a Google Drive folder and import new rent roll files
 
 Workflow:
 
@@ -85,9 +85,9 @@ No manual uploads required.
 
 ### Notifications
 
-* Lease expiration reminders
-* Vacancy alerts
-* Rent increase reminders
+- [ ] Lease expiration reminders
+- [ ] Vacancy alerts
+- [ ] Rent increase reminders
 
 ---
 
@@ -95,31 +95,31 @@ No manual uploads required.
 
 ### Analytics
 
-* Rent growth trends
-* Vacancy trends
-* Property comparisons
+- [ ] Rent growth trends
+- [ ] Vacancy trends
+- [ ] Property comparisons
 
 ---
 
 ## Data Cleanup
 
-* Rename units at 752 N 26th St. (currently "1", "2", "3", "4") to match
-  the "[property] [unit]" naming convention used everywhere else (e.g.
-  "26th St Unit 1") — source data comes from the property manager's
-  export, so this needs to be corrected there or normalized on import.
+- [x] Rename units at 752 N 26th St. (was "1", "2", "3", "4") to match the
+      "[street number] [unit]" naming convention used everywhere else.
+      Normalized on import going forward (`importer.py`); existing history
+      updated via `migrate_26th_st_units.py`.
 
 ---
 
 ## Future Ideas
 
-* Expense tracking
-* Cash flow dashboard
-* Security deposit tracking
-* Cap rate metrics
-* Tenant history
-* Notes by property
-* Mobile-friendly layout improvements
-* Authentication
-* Multi-user support
-* Email reports
-* Backup and restore tools
+- [ ] Expense tracking
+- [ ] Cash flow dashboard
+- [ ] Security deposit tracking
+- [ ] Cap rate metrics
+- [ ] Tenant history
+- [ ] Notes by property
+- [ ] Mobile-friendly layout improvements
+- [ ] Authentication
+- [ ] Multi-user support
+- [ ] Email reports
+- [ ] Backup and restore tools
