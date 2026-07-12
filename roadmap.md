@@ -101,6 +101,15 @@ No manual uploads required.
 
 ---
 
+## Data Cleanup
+
+* Rename units at 752 N 26th St. (currently "1", "2", "3", "4") to match
+  the "[property] [unit]" naming convention used everywhere else (e.g.
+  "26th St Unit 1") — source data comes from the property manager's
+  export, so this needs to be corrected there or normalized on import.
+
+---
+
 ## Future Ideas
 
 * Expense tracking

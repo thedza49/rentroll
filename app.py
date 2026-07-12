@@ -108,7 +108,8 @@ def dashboard():
             "dashboard.html",
             snapshot=None,
             chart_labels=[],
-            gross_rents=[]
+            chart_total_rent=[],
+            chart_occupancy_pct=[]
         )
 
     snapshot_date = request.args.get("snapshot_date")
@@ -143,6 +144,56 @@ def dashboard():
             as_of_date=snapshot.snapshot_date
         )
 
+    #
+    # Total rent for the current snapshot, shown as a footer row under
+    # the Unit Inventory table.
+    #
+    total_rent = sum(
+        unit.rent or 0
+        for unit in units
+    )
+
+    #
+    # Financial Trends: total rent and occupancy % for every snapshot
+    # in history, oldest to newest, for the dual-axis chart.
+    #
+    chart_snapshots = (
+        Snapshot.query
+        .order_by(Snapshot.snapshot_date)
+        .all()
+    )
+
+    chart_labels = []
+    chart_total_rent = []
+    chart_occupancy_pct = []
+
+    for s in chart_snapshots:
+
+        s_units = s.units
+
+        s_total_rent = sum(
+            u.rent or 0
+            for u in s_units
+        )
+
+        occupied_count = sum(
+            1
+            for u in s_units
+            if (u.status or "") not in VACANT_STATUSES
+        )
+
+        occupancy_pct = (
+            (occupied_count / len(s_units) * 100)
+            if s_units else 0
+        )
+
+        chart_labels.append(
+            s.snapshot_date.strftime("%b %Y")
+        )
+
+        chart_total_rent.append(s_total_rent)
+        chart_occupancy_pct.append(round(occupancy_pct, 1))
+
     activities = (
         Activity.query
         .order_by(
@@ -158,7 +209,11 @@ def dashboard():
         snapshot=snapshot,
         snapshots=snapshots,
         units=units,
-        activities=activities
+        total_rent=total_rent,
+        activities=activities,
+        chart_labels=chart_labels,
+        chart_total_rent=chart_total_rent,
+        chart_occupancy_pct=chart_occupancy_pct
     )
 
 
